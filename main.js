@@ -94,6 +94,8 @@ const { shayariCommand } = require('./commands/shayari');
 const { rosedayCommand } = require('./commands/roseday');
 const imagineCommand = require('./commands/imagine');
 const videoCommand = require('./commands/video');
+const debugCommand = require('./commands/debug');
+const statusCommand = require('./commands/status');
 
 
 // Global settings
@@ -267,17 +269,18 @@ async function handleMessages(sock, messageUpdate, printLog) {
             // Default to public mode if there's an error reading the file
         }
 
-        // Command handlers
-        switch (true) {
-            case userMessage === '.simage': {
-                const quotedMessage = message.message?.extendedTextMessage?.contextInfo?.quotedMessage;
-                if (quotedMessage?.stickerMessage) {
-                    await simageCommand(sock, quotedMessage, chatId);
-                } else {
-                    await sock.sendMessage(chatId, { text: 'Please reply to a sticker with the .simage command to convert it.', ...channelInfo });
+        // Command handlers with error wrapping
+        try {
+            switch (true) {
+                case userMessage === '.simage': {
+                    const quotedMessage = message.message?.extendedTextMessage?.contextInfo?.quotedMessage;
+                    if (quotedMessage?.stickerMessage) {
+                        await simageCommand(sock, quotedMessage, chatId);
+                    } else {
+                        await sock.sendMessage(chatId, { text: 'Please reply to a sticker with the .simage command to convert it.', ...channelInfo });
+                    }
+                    break;
                 }
-                break;
-            }
             case userMessage.startsWith('.kick'):
                 const mentionedJidListKick = message.message.extendedTextMessage?.contextInfo?.mentionedJid || [];
                 await kickCommand(sock, chatId, senderId, mentionedJidListKick, message);
@@ -766,6 +769,12 @@ async function handleMessages(sock, messageUpdate, printLog) {
             case userMessage === '.jid':
                 await groupJidCommand(sock, chatId, message);
                 break;
+            case userMessage === '.debug':
+                await debugCommand(sock, chatId, message);
+                break;
+            case userMessage === '.status':
+                await statusCommand(sock, chatId, message);
+                break;
 
                 // Function to handle .groupjid command
                 async function groupJidCommand(sock, chatId, message) {
@@ -796,10 +805,35 @@ async function handleMessages(sock, messageUpdate, printLog) {
                 break;
         }
 
+        // Add reaction after command is processed
         if (userMessage.startsWith('.')) {
-            // After command is processed successfully
             await addCommandReaction(sock, message);
         }
+
+    } catch (error) {
+        console.error('❌ Error in message handler:', error.message);
+        console.error('Stack trace:', error.stack);
+        
+        // Log additional context for debugging
+        console.error('Context:', {
+            chatId: chatId || 'unknown',
+            userMessage: userMessage || 'empty',
+            isGroup: isGroup || false,
+            senderId: senderId || 'unknown'
+        });
+        
+        // Only try to send error message if we have a valid chatId
+        if (chatId) {
+            try {
+                await sock.sendMessage(chatId, {
+                    text: '❌ Failed to process command! Please try again or use .debug for more information.',
+                    ...channelInfo
+                });
+            } catch (sendError) {
+                console.error('❌ Failed to send error message:', sendError);
+            }
+        }
+    }
     } catch (error) {
         console.error('❌ Error in message handler:', error.message);
         // Only try to send error message if we have a valid chatId

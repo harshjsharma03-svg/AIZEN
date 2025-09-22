@@ -5,12 +5,21 @@ services:
     plan: free
     rootDir: "."
     buildCommand: |
+      echo "Starting build process..."
       npm cache clean --force
       rm -rf node_modules package-lock.json
-      npm install --legacy-peer-deps --ignore-scripts=false --foreground-scripts --verbose
+      echo "Installing dependencies..."
+      npm install --legacy-peer-deps --verbose
+      echo "Rebuilding native modules..."
+      npm rebuild sharp
+      echo "Build completed successfully!"
     startCommand: node index.js
     envVars:
       - key: NODE_ENV
         value: production
       - key: SHARP_IGNORE_GLOBAL_LIBVIPS
         value: "1"
+      - key: npm_config_build_from_source
+        value: "true"
+      - key: PUPPETEER_SKIP_CHROMIUM_DOWNLOAD
+        value: "true"
