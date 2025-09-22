@@ -1,0 +1,9 @@
+{
+  "name": "aizen-entry",
+  "version": "1.0.0",
+  "description": "Entry point for AIZEN WhatsApp Bot",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  }
+}
