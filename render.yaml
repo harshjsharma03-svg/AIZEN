@@ -4,7 +4,10 @@ services:
     env: node
     plan: free
     rootDir: "."
-    buildCommand: npm install --legacy-peer-deps
+    buildCommand: |
+      npm cache clean --force
+      rm -rf node_modules package-lock.json
+      npm install --legacy-peer-deps
     startCommand: node index.js
     envVars:
       - key: NODE_ENV
