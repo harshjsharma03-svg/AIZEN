@@ -1,5 +1,6 @@
 {
   "name": "optimus",
+  "baileys": "^6.7.0",
   "version": "1.0.0",
   "description": "WhatsApp Bot",
   "main": "index.js",
@@ -22,9 +23,9 @@
     "@ffmpeg/ffmpeg": "^0.12.15",
     "@hapi/boom": "^10.0.1",
     "@types/node": "^18.0.6",
-    "@whiskeysockets/baileys": "^6.7.18",
     "awesome-phonenumber": "^5.9.0",
     "axios": "^1.8.4",
+    "baileys": "^6.7.0",
     "chalk": "^4.1.2",
     "cheerio": "^1.0.0-rc.12",
     "cookie": "^0.5.0",
