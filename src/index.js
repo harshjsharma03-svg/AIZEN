@@ -3,6 +3,9 @@
 
 const path = require('path');
 
+// Load polyfills first
+require('../lib/polyfills');
+
 // Change working directory to parent (project root)
 const rootDir = path.join(__dirname, '..');
 process.chdir(rootDir);

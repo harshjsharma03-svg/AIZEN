@@ -9,6 +9,10 @@
  * - Baileys Library by @adiwajshing
  * - Pair Code implementation inspired by TechGod143 & DGXEON
  */
+
+// Load polyfills first to fix Node.js compatibility issues
+require('./lib/polyfills');
+
 require('./settings')
 const { Boom } = require('@hapi/boom')
 const fs = require('fs')
