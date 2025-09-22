@@ -5,6 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
+    "build": "npm install --legacy-peer-deps",
+    "dev": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "docker:build": "docker build -t OPTIMUS_PRIME .",
     "docker:run": "docker run -e SESSION_ID=$SESSION_ID OPTIMUS_PRIME"
@@ -33,7 +35,7 @@
     "fs-extra": "^11.2.0",
     "gtts": "^0.2.1",
     "human-readable": "^0.2.1",
-    "jimp": "^0.16.13",
+    "jimp": "^1.6.0",
     "jsdom": "^22.1.0",
     "libphonenumber-js": "^1.11.18",
     "libsignal": "^2.0.1",
