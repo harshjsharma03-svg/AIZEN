@@ -97,6 +97,7 @@ const imagineCommand = require('./commands/imagine');
 const videoCommand = require('./commands/video');
 const debugCommand = require('./commands/debug');
 const statusCommand = require('./commands/status');
+const testBotCommand = require('./commands/test-bot');
 
 
 // Global settings
@@ -148,6 +149,12 @@ async function handleMessages(sock, messageUpdate, printLog) {
             message.message?.videoMessage?.caption?.trim() ||
             ''
         ).toLowerCase().replace(/\.\s+/g, '.').trim();
+
+        // Validate userMessage to prevent slice errors
+        if (typeof userMessage !== 'string') {
+            console.error('❌ Invalid userMessage type:', typeof userMessage);
+            return;
+        }
 
         // Preserve raw message for commands like .tag that need original casing
         const rawText = message.message?.conversation?.trim() ||
@@ -776,6 +783,9 @@ async function handleMessages(sock, messageUpdate, printLog) {
             case userMessage === '.status':
                 await statusCommand(sock, chatId, message);
                 break;
+            case userMessage === '.test' || userMessage === '.test-bot':
+                await testBotCommand(sock, chatId, message);
+                break;
 
                 // Function to handle .groupjid command
                 async function groupJidCommand(sock, chatId, message) {
@@ -836,13 +846,41 @@ async function handleMessages(sock, messageUpdate, printLog) {
         }
     }
     } catch (error) {
-        console.error('❌ Error in message handler:', error.message);
-        // Only try to send error message if we have a valid chatId
-        if (chatId) {
-            await sock.sendMessage(chatId, {
-                text: '❌ Failed to process command!',
-                ...channelInfo
-            });
+        // Handle specific error types
+        if (error.message && error.message.includes('Bad MAC')) {
+            console.error('🔐 Session MAC Error:', error.message);
+            // Don't spam users with MAC errors as they're usually temporary
+            return;
+        }
+        
+        if (error.message && error.message.includes('Session error')) {
+            console.error('📱 Session Error:', error.message);
+            // Don't spam users with session errors
+            return;
+        }
+        
+        if (error.message && error.message.includes('Failed to decrypt')) {
+            console.error('🔒 Decryption Error:', error.message);
+            // Don't spam users with decryption errors
+            return;
+        }
+
+        console.error('❌ Error in message handler:', {
+            message: error.message,
+            stack: error.stack,
+            chatId: chatId || 'unknown'
+        });
+        
+        // Only try to send error message if we have a valid chatId and it's not a session error
+        if (chatId && !error.message?.includes('Session') && !error.message?.includes('MAC')) {
+            try {
+                await sock.sendMessage(chatId, {
+                    text: '❌ Failed to process command! Please try again.',
+                    ...channelInfo
+                });
+            } catch (sendError) {
+                console.error('❌ Failed to send error message:', sendError.message);
+            }
         }
     }
 }
