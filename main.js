@@ -1,5 +1,6 @@
 const settings = require('./settings');
 require('./config.js');
+require('./lib/tempCleanup'); // Auto cleanup temp files
 const { isBanned } = require('./lib/isBanned');
 const yts = require('yt-search');
 const { fetchBuffer } = require('./lib/myfunc');
