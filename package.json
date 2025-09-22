@@ -7,6 +7,7 @@
     "start": "node index.js",
     "build": "npm install --legacy-peer-deps",
     "dev": "node index.js",
+    "postinstall": "npm rebuild sharp",
     "test": "echo \"Error: no test specified\" && exit 1",
     "docker:build": "docker build -t OPTIMUS_PRIME .",
     "docker:run": "docker run -e SESSION_ID=$SESSION_ID OPTIMUS_PRIME"
