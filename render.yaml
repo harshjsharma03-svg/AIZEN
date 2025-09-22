@@ -3,8 +3,18 @@ services:
     name: aizen-whatsapp-bot
     env: node
     plan: free
-    buildCommand: npm install --legacy-peer-deps
-    startCommand: node index.js
+    rootDir: .
+    buildCommand: |
+      npm install --legacy-peer-deps
+      echo "Build completed successfully"
+    startCommand: |
+      if [ -f "./index.js" ]; then
+        node index.js
+      elif [ -f "./src/index.js" ]; then
+        node src/index.js
+      else
+        echo "No index.js found" && exit 1
+      fi
     envVars:
       - key: NODE_ENV
         value: production
